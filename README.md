@@ -1,14 +1,15 @@
 RatingBar
 =========================
 
-A simple RatingsBar that obtains most of its value proposition from being easier to customize the look of the star views 
-than the default RatingsBar.
+<img src="art/demo.png" width="275" align="right"/>
+
+A lightweight RatingsBar widget that makes it easier to customize the look of the children ratings views than the default RatingsBar.
 
 Usage
 -----
 
-- Have the selected state drawable `icn_rating_start_green` in your project.
-- Have the unselected state drawable `icn_rating_start_grey` in your project.
+- Include the selected state drawable `icn_rating_start_green` in your project.
+- Include the unselected state drawable `icn_rating_start_grey` in your project.
 
 - Include in layout:
 
@@ -26,5 +27,3 @@ Set the height and width of the stars with `setStarSizeInDp(int dp)`. Omitting t
 wrap_content.
 
 Change the number of stars to choose from with `setStarCount(int count)`.
-
-
