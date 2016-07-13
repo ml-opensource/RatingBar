@@ -2,6 +2,7 @@ package com.fuzzproductions.ratingbar;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
@@ -15,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 /**
+ * A rating bar that allows changes to the "stars". Currently does not support partial stars
+ *
  * @author Piotr Leja (FUZZ)
  */
 public class RatingBar extends LinearLayout implements View.OnTouchListener {
@@ -32,38 +35,54 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     private int emptyDrawable;
 
     /**
-     * Amount of space between consecutive rating stars - typically 5 dp.
+     * Amount of space between consecutive rating stars - default 5 dp.
      */
     protected int margin;
 
     public RatingBar(Context context) {
         super(context);
-        setOnTouchListener(null);
-        setDefaultDrawables();
-        updateChildViews();
+        init(null);
     }
 
     public RatingBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOnTouchListener(null);
-        setDefaultDrawables();
-        updateChildViews();
+        init(attrs);
     }
 
     public RatingBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setOnTouchListener(null);
-        setDefaultDrawables();
-        updateChildViews();
+        init(attrs);
     }
 
     @SuppressWarnings("unused")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public RatingBar(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init(attrs);
+    }
+
+    /**
+     * Initialize attributes obtained when inflating
+     * @param attributeSet where we pull attributes from
+     */
+    protected void init(AttributeSet attributeSet){
+        if(attributeSet != null){
+            TypedArray a = getContext().obtainStyledAttributes(attributeSet, R.styleable.RatingBar);
+            filledDrawable = a.getResourceId(R.styleable.RatingBar_filledDrawable, DEFAULT_FILLED_DRAWABLE);
+            emptyDrawable = a.getResourceId(R.styleable.RatingBar_emptyDrawable, DEFAULT_EMPTY_DRAWABLE);
+            starSize = a.getDimensionPixelSize(R.styleable.RatingBar_starSize, 0); // TODO: change default value
+            mMaxCount = a.getInt(R.styleable.RatingBar_maxStars, 5); // you usually go 1-5 stars when rating
+            minSelected = a.getInt(R.styleable.RatingBar_minStars, 0);
+            margin = a.getDimensionPixelSize(R.styleable.RatingBar_starSpacing, getDefaultSpacing());
+            currentlySelected = a.getInt(R.styleable.RatingBar_starsSelected, minSelected);
+            a.recycle();
+        } else {
+            setDefaultDrawables();
+        }
+
         setOnTouchListener(null);
-        setDefaultDrawables();
         updateChildViews();
+
     }
 
     private void setDefaultDrawables() {
@@ -94,8 +113,16 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         return minSelected;
     }
 
+    private int getDefaultSpacing(){
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                5,
+                getResources().getDisplayMetrics()
+        );
+    }
+
     public void setStarSizeInDp(int size) {
-        starSize = (int) TypedValue.applyDimension(
+        starSize = (int)TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 size,
                 getResources().getDisplayMetrics()
@@ -162,12 +189,8 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
                 starSize == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : starSize,
                 starSize == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : starSize
         );
-        if (margin <= 0) {
-            margin = (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    5,
-                    getResources().getDisplayMetrics()
-            );
+        if (margin < 0) {
+            margin = getDefaultSpacing();
         }
         params.setMargins(margin, margin, margin, margin);
         params.gravity = Gravity.CENTER;

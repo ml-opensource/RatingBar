@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RatingBar">
+        <attr name="filledDrawable" format="integer" />
+        <attr name="emptyDrawable" format="integer" />
+        <attr name="starsSelected" format="integer"/>
+        <attr name="maxStars" format="integer"/>
+        <attr name="minStars" format="integer"/>
+        <attr name="starSpacing" format="dimension"/>
+        <attr name="starSize" format="dimension" />
+    </declare-styleable>
+</resources>
