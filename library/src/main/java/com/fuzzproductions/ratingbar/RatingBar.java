@@ -36,6 +36,8 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
      */
     protected int margin;
 
+    private RatingBarListener mRatingBarListener = null;
+
     public RatingBar(Context context) {
         super(context);
         setOnTouchListener(null);
@@ -186,6 +188,14 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         super.setOnTouchListener(this);
     }
 
+    public void setRatingBarListener(RatingBarListener listener) {
+        this.mRatingBarListener = listener;
+    }
+
+    public RatingBarListener getRatingBarListener() {
+        return mRatingBarListener;
+    }
+
     private Rect hitRectCheck = new Rect();
 
     @Override
@@ -196,6 +206,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
             v2.getHitRect(hitRectCheck);
             boolean b = hitRectCheck.contains((int) event.getX(), (int) event.getY());
             if (b) {
+                int previouslySelected = currentlySelected;
                 if (i == 0 && minSelected == 0) {
 
                     float hitOnView = event.getX() - hitRectCheck.left;
@@ -208,10 +219,21 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
                 } else {
                     currentlySelected = i + 1;
                 }
+                if(mRatingBarListener != null && previouslySelected != currentlySelected){
+                    mRatingBarListener.onChangeSelectedStar(
+                            this,
+                            previouslySelected,
+                            currentlySelected
+                    );
+                }
                 updateChildViews();
             }
         }
 
         return true;
+    }
+
+    public interface RatingBarListener {
+        void onChangeSelectedStar(RatingBar ratingBar, int previousSelected, int currentlySelected);
     }
 }
