@@ -18,7 +18,8 @@ import android.widget.LinearLayout;
  * @author Piotr Leja (FUZZ)
  */
 public class RatingBar extends LinearLayout implements View.OnTouchListener {
-    private static final String TAG = "SurveyRatingBar";
+    @SuppressWarnings("unused")
+    private static final String TAG = "RatingBar";
     protected static final int DEFAULT_FILLED_DRAWABLE = R.drawable.icn_rating_start_green;
     protected static final int DEFAULT_EMPTY_DRAWABLE = R.drawable.icn_rating_start_grey;
     private int mMaxCount = 5;
@@ -157,7 +158,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     protected void generateAndAddChildViewAndParams() {
         ImageView view = new ImageView(getContext());
         view.setScaleType(ImageView.ScaleType.FIT_XY);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+        LayoutParams params = new LayoutParams(
                 starSize == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : starSize,
                 starSize == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : starSize
         );
