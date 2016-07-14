@@ -21,17 +21,17 @@ public class MainActivity extends AppCompatActivity {
 
         RatingBar bar = (RatingBar) findViewById(R.id.rating_bar);
         if(bar != null) {
-            bar.setRatingBarListener(new RatingBar.RatingBarListener() {
+            bar.setRatingBarListener(new RatingBar.OnRatingBarChangeListener() {
                 @Override
-                public void onChangeSelectedStar(RatingBar ratingBar, int previousSelected, int currentlySelected) {
-                    if(textView != null){
+                public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                    if(textView != null) {
                         textView.setText(
                                 String.format(
-                                        Locale.getDefault(),
-                                        "previously selected: %d currentlySelected %d",
-                                        previousSelected,
-                                        currentlySelected
+                                        "Currently selected: %s isFromUser: %s",
+                                        rating,
+                                        fromUser
                                 )
+
                         );
                     }
                 }

@@ -39,7 +39,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
      */
     protected int margin;
 
-    private RatingBarListener mRatingBarListener = null;
+    private OnRatingBarChangeListener mRatingBarListener = null;
 
     public RatingBar(Context context) {
         super(context);
@@ -65,10 +65,11 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
 
     /**
      * Initialize attributes obtained when inflating
+     *
      * @param attributeSet where we pull attributes from
      */
-    protected void init(AttributeSet attributeSet){
-        if(attributeSet != null){
+    protected void init(AttributeSet attributeSet) {
+        if (attributeSet != null) {
             TypedArray a = getContext().obtainStyledAttributes(attributeSet, R.styleable.RatingBar);
             filledDrawable = a.getResourceId(R.styleable.RatingBar_filledDrawable, DEFAULT_FILLED_DRAWABLE);
             emptyDrawable = a.getResourceId(R.styleable.RatingBar_emptyDrawable, DEFAULT_EMPTY_DRAWABLE);
@@ -92,10 +93,23 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         emptyDrawable = DEFAULT_EMPTY_DRAWABLE;
     }
 
-    public void setCurrentlySelectedPosition(int pos) {
-        currentlySelected = pos;
-        updateChildViews();
 
+    private void setCurrentlySelectedPosition(int pos, boolean fromUser) {
+        currentlySelected = pos;
+        if (currentlySelected < minSelected) {
+            currentlySelected = minSelected;
+        } else if (currentlySelected > mMaxCount) {
+            currentlySelected = mMaxCount;
+        }
+        if (mRatingBarListener != null) {
+            mRatingBarListener.onRatingChanged(this, pos, fromUser);
+        }
+
+        updateChildViews();
+    }
+
+    public void setCurrentlySelectedPosition(int pos) {
+        setCurrentlySelectedPosition(pos, false);
     }
 
     public int getCurrentlySelectedPosition() {
@@ -115,7 +129,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         return minSelected;
     }
 
-    private int getDefaultSpacing(){
+    private int getDefaultSpacing() {
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 5,
@@ -124,7 +138,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     }
 
     public void setStarSizeInDp(int size) {
-        starSize = (int)TypedValue.applyDimension(
+        starSize = (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 size,
                 getResources().getDisplayMetrics()
@@ -151,8 +165,13 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
             }
         }
 
-        if (currentlySelected < minSelected)
+        if (currentlySelected < minSelected) {
             currentlySelected = minSelected;
+            //Don't think this will ever be called here but just in case
+            if (mRatingBarListener != null) {
+                mRatingBarListener.onRatingChanged(this, currentlySelected, false);
+            }
+        }
 
         for (int i = 0; i < getChildCount(); i++) {
             final ImageView v = (ImageView) getChildAt(i);
@@ -170,7 +189,8 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
 
     /**
      * Changes the current filled drawable to the one passed in via the
-     * {@code filledDrawable}. */
+     * {@code filledDrawable}.
+     */
     public void setFilledDrawable(@DrawableRes int filledDrawable) {
         this.filledDrawable = filledDrawable;
         updateChildViews();
@@ -178,7 +198,8 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
 
     /**
      * Changes the current empty drawable to the one passed in via the
-     * {@code emptyDrawable}. */
+     * {@code emptyDrawable}.
+     */
     public void setEmptyDrawable(@DrawableRes int emptyDrawable) {
         this.emptyDrawable = emptyDrawable;
         updateChildViews();
@@ -211,11 +232,11 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         super.setOnTouchListener(this);
     }
 
-    public void setRatingBarListener(RatingBarListener listener) {
+    public void setRatingBarListener(OnRatingBarChangeListener listener) {
         this.mRatingBarListener = listener;
     }
 
-    public RatingBarListener getRatingBarListener() {
+    public OnRatingBarChangeListener getRatingBarListener() {
         return mRatingBarListener;
     }
 
@@ -229,7 +250,6 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
             v2.getHitRect(hitRectCheck);
             boolean b = hitRectCheck.contains((int) event.getX(), (int) event.getY());
             if (b) {
-                int previouslySelected = currentlySelected;
                 if (i == 0 && minSelected == 0) {
 
                     float hitOnView = event.getX() - hitRectCheck.left;
@@ -242,21 +262,15 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
                 } else {
                     currentlySelected = i + 1;
                 }
-                if(mRatingBarListener != null && previouslySelected != currentlySelected){
-                    mRatingBarListener.onChangeSelectedStar(
-                            this,
-                            previouslySelected,
-                            currentlySelected
-                    );
-                }
-                updateChildViews();
+                setCurrentlySelectedPosition(currentlySelected, true);
             }
         }
 
         return true;
     }
 
-    public interface RatingBarListener {
-        void onChangeSelectedStar(RatingBar ratingBar, int previousSelected, int currentlySelected);
+    public interface OnRatingBarChangeListener {
+        void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser);
+        //Possibly add a previously selected and currently selected part, but later.
     }
 }
