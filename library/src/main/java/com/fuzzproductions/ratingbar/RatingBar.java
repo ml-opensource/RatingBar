@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -244,11 +245,11 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-
+        int x = (int) event.getX();
         for (int i = 0; i < getChildCount(); i++) {
             View v2 = getChildAt(i);
             v2.getHitRect(hitRectCheck);
-            boolean b = hitRectCheck.contains((int) event.getX(), (int) event.getY());
+            boolean b = x >= hitRectCheck.left && x <= hitRectCheck.right;
             if (b) {
                 if (i == 0 && minSelected == 0) {
 
