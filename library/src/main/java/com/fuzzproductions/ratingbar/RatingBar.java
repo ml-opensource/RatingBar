@@ -233,11 +233,6 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
-    }
-
-    @Override
     public void setOnTouchListener(OnTouchListener l) {
         //We don't allow other touch listeners here
         super.setOnTouchListener(this);
@@ -254,7 +249,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     private Rect hitRectCheck = new Rect();
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        //Bascially do not allow user to update this stuff is indicator only
+        //Basically do not allow user to update this stuff is indicator only
         if(isIndicator)
             return true;
 
@@ -266,7 +261,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
             if (b) {
                 if (i == 0 && minSelected == 0) {
 
-                    float hitOnView = event.getX() - hitRectCheck.left;
+                    float hitOnView = x - hitRectCheck.left;
                     if (hitOnView / hitRectCheck.width() <= .25f) {
                         currentlySelected = 0;
                     } else {
