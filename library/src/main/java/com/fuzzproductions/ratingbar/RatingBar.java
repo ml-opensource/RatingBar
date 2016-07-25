@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -27,9 +26,11 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     protected static final int DEFAULT_FILLED_DRAWABLE = R.drawable.icn_rating_start_green;
     protected static final int DEFAULT_EMPTY_DRAWABLE = R.drawable.icn_rating_start_grey;
     private int mMaxCount = 5;
-    private int currentlySelected;
+    private float currentlySelected;
     private int minSelected = 0;
     private int starSize = 0;
+    private boolean isIndicator = false;
+
     @DrawableRes
     private int filledDrawable;
     @DrawableRes
@@ -95,7 +96,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     }
 
 
-    private void setCurrentlySelectedPosition(int pos, boolean fromUser) {
+    private void setRating(float pos, boolean fromUser) {
         currentlySelected = pos;
         if (currentlySelected < minSelected) {
             currentlySelected = minSelected;
@@ -109,17 +110,21 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         updateChildViews();
     }
 
-    public void setCurrentlySelectedPosition(int pos) {
-        setCurrentlySelectedPosition(pos, false);
+    public void setRating(float rating) {
+        setRating(rating, false);
     }
 
-    public int getCurrentlySelectedPosition() {
+    public float getRating() {
         return currentlySelected;
     }
 
-    public void setStarCount(int count) {
+    public void setMax(int count) {
         mMaxCount = count;
         updateChildViews();
+    }
+
+    public int getMax(){
+        return this.mMaxCount;
     }
 
     public void setMinStarCount(int minStarCount) {
@@ -206,6 +211,11 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         updateChildViews();
     }
 
+    public void setIsIndicator(boolean isIndicator){
+        this.isIndicator = isIndicator;
+    }
+
+
     protected void generateAndAddChildViewAndParams() {
         ImageView view = new ImageView(getContext());
         view.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -233,18 +243,21 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         super.setOnTouchListener(this);
     }
 
-    public void setRatingBarListener(OnRatingBarChangeListener listener) {
+    public void setOnRatingBarChangeListener(OnRatingBarChangeListener listener) {
         this.mRatingBarListener = listener;
     }
 
-    public OnRatingBarChangeListener getRatingBarListener() {
+    public OnRatingBarChangeListener getOnRatingBarChangeListener() {
         return mRatingBarListener;
     }
 
     private Rect hitRectCheck = new Rect();
-
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        //Bascially do not allow user to update this stuff is indicator only
+        if(isIndicator)
+            return true;
+
         int x = (int) event.getX();
         for (int i = 0; i < getChildCount(); i++) {
             View v2 = getChildAt(i);
@@ -263,7 +276,7 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
                 } else {
                     currentlySelected = i + 1;
                 }
-                setCurrentlySelectedPosition(currentlySelected, true);
+                setRating(currentlySelected, true);
             }
         }
 
