@@ -6,8 +6,6 @@ import android.widget.TextView;
 
 import com.fuzzproductions.ratingbar.RatingBar;
 
-import java.util.Locale;
-
 public class MainActivity extends AppCompatActivity {
 
     TextView textView;
@@ -21,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
         RatingBar bar = (RatingBar) findViewById(R.id.rating_bar);
         if(bar != null) {
-            bar.setRatingBarListener(new RatingBar.OnRatingBarChangeListener() {
+            bar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                 @Override
                 public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                     if(textView != null) {
