@@ -24,7 +24,29 @@
         app:starSize="20dp"
         app:starsSelected="3"
         app:starSpacing="10dp"
+        android:layout_margin="10dp"
         />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rating_bar"
+        android:layout_centerHorizontal="true"
+        >
+
+        <Button
+            android:id="@+id/random_starSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Random Star Size"
+            />
+        <Button
+            android:id="@+id/random_starCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Random Star Count"
+            />
+    </LinearLayout>
 
 
 </RelativeLayout>
