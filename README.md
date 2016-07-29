@@ -5,6 +5,8 @@ RatingBar
 
 A lightweight RatingsBar widget that makes it easier to customize the look of the children ratings views than the default RatingsBar.
 
+**NOTE: This currently only allows use of stock RatingBar functions but not underlying AbsSeekBar functions**
+
 Usage
 -----
 
