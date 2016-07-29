@@ -22,7 +22,7 @@ Usage
     app:minAllowedStars="1"
     app:numStars="7"
     app:starSize="20dp"
-    app:starsSelected="3"
+    app:rating="3"
     app:starMargin="10dp"
     />
 ```
