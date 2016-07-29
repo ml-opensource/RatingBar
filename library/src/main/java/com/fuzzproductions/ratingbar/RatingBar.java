@@ -3,7 +3,9 @@ package com.fuzzproductions.ratingbar;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
+import android.graphics.Canvas;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
@@ -11,16 +13,13 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 /**
  * A rating bar that allows changes to the "stars". Currently does not support partial stars
  *
  * @author Piotr Leja (FUZZ)
  */
-public class RatingBar extends LinearLayout implements View.OnTouchListener {
+public class RatingBar extends View implements View.OnTouchListener {
     @SuppressWarnings("unused")
     private static final String TAG = "RatingBar";
     protected static final int DEFAULT_FILLED_DRAWABLE = R.drawable.icn_rating_start_green;
@@ -35,6 +34,9 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     private int filledDrawable;
     @DrawableRes
     private int emptyDrawable;
+
+    private Drawable baseDrawable;
+    private ClipDrawable overlayDrawable;
 
     /**
      * Amount of space between consecutive rating stars - default 5 dp.
@@ -84,15 +86,24 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         } else {
             setDefaultDrawables();
         }
+        baseDrawable = getResources().getDrawable(emptyDrawable);
+        if (baseDrawable != null) {
+            baseDrawable.setBounds(0, 0, starSize, starSize);
+        }
 
+        Drawable d = getResources().getDrawable(filledDrawable);
+        if (d != null) {
+            d.setBounds(0, 0, starSize, starSize);
+            overlayDrawable = new ClipDrawable(d, Gravity.LEFT, ClipDrawable.HORIZONTAL);
+            overlayDrawable.setBounds(d.getBounds());
+        }
         setOnTouchListener(null);
-        updateChildViews();
 
     }
 
     private void setDefaultDrawables() {
-        filledDrawable = DEFAULT_FILLED_DRAWABLE;
-        emptyDrawable = DEFAULT_EMPTY_DRAWABLE;
+        setFilledDrawable(DEFAULT_FILLED_DRAWABLE);
+        setEmptyDrawable(DEFAULT_EMPTY_DRAWABLE);
     }
 
 
@@ -106,8 +117,8 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         if (mRatingBarListener != null) {
             mRatingBarListener.onRatingChanged(this, pos, fromUser);
         }
+        postInvalidate();
 
-        updateChildViews();
     }
 
     public void setRating(float rating) {
@@ -120,15 +131,21 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
 
     public void setMax(int count) {
         mMaxCount = count;
-        updateChildViews();
+        post(new Runnable() {
+            @Override
+            public void run() {
+                requestLayout();
+            }
+        });
     }
 
-    public int getMax(){
+    public int getMax() {
         return this.mMaxCount;
     }
 
     public void setMinStarCount(int minStarCount) {
         minSelected = minStarCount;
+        postInvalidate();
     }
 
     public int getMinStarCount() {
@@ -149,48 +166,18 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
                 size,
                 getResources().getDisplayMetrics()
         );
-        for (int i = 0; i < getChildCount(); i++) {
-            View v = getChildAt(i);
-            LayoutParams params = (LayoutParams) v.getLayoutParams();
-            params.width = starSize;
-            params.height = starSize;
-            v.postInvalidate();
+        if(baseDrawable != null){
+            baseDrawable.setBounds(0, 0, starSize, starSize);
         }
-    }
-
-    private void updateChildViews() {
-
-        int childCount = getChildCount();
-        if (mMaxCount < childCount) {
-            while (getChildCount() > mMaxCount) {
-                removeViewAt(getChildCount() - 1);
-            }
-        } else if (mMaxCount > childCount) {
-            while (getChildCount() < mMaxCount) {
-                generateAndAddChildViewAndParams();
-            }
+        if(overlayDrawable != null){
+            overlayDrawable.setBounds(0, 0, starSize, starSize);
         }
-
-        if (currentlySelected < minSelected) {
-            currentlySelected = minSelected;
-            //Don't think this will ever be called here but just in case
-            if (mRatingBarListener != null) {
-                mRatingBarListener.onRatingChanged(this, currentlySelected, false);
+        post(new Runnable() {
+            @Override
+            public void run() {
+                requestLayout();
             }
-        }
-
-        for (int i = 0; i < getChildCount(); i++) {
-            final ImageView v = (ImageView) getChildAt(i);
-            //TODO: make below more dynamic... i guess
-            if (i < currentlySelected) {
-                v.setImageResource(filledDrawable);
-            } else {
-                v.setImageResource(emptyDrawable);
-            }
-
-            v.postInvalidate();
-        }
-
+        });
     }
 
     /**
@@ -198,8 +185,16 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
      * {@code filledDrawable}.
      */
     public void setFilledDrawable(@DrawableRes int filledDrawable) {
-        this.filledDrawable = filledDrawable;
-        updateChildViews();
+        if(this.filledDrawable != filledDrawable) {
+            this.filledDrawable = filledDrawable;
+            overlayDrawable = new ClipDrawable(
+                    getResources().getDrawable(filledDrawable),
+                    Gravity.LEFT,
+                    ClipDrawable.HORIZONTAL
+            );
+            overlayDrawable.setBounds(0, 0, starSize, starSize);
+            postInvalidate();
+        }
     }
 
     /**
@@ -207,34 +202,19 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
      * {@code emptyDrawable}.
      */
     public void setEmptyDrawable(@DrawableRes int emptyDrawable) {
-        this.emptyDrawable = emptyDrawable;
-        updateChildViews();
-    }
-
-    public void setIsIndicator(boolean isIndicator){
-        this.isIndicator = isIndicator;
-    }
-
-
-    protected void generateAndAddChildViewAndParams() {
-        ImageView view = new ImageView(getContext());
-        view.setScaleType(ImageView.ScaleType.FIT_XY);
-        LayoutParams params = new LayoutParams(
-                starSize == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : starSize,
-                starSize == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : starSize
-        );
-        if (margin < 0) {
-            margin = getDefaultSpacing();
+        if(this.emptyDrawable != emptyDrawable) {
+            this.emptyDrawable = emptyDrawable;
+            baseDrawable = new ClipDrawable(
+                    getResources().getDrawable(this.emptyDrawable),
+                    Gravity.LEFT,
+                    ClipDrawable.HORIZONTAL
+            );
+            baseDrawable.setBounds(0, 0, starSize, starSize);
         }
-        params.setMargins(margin, margin, margin, margin);
-        params.gravity = Gravity.CENTER;
-        view.setPadding(0, 0, 0, 0);
-        addView(view, params);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+    public void setIsIndicator(boolean isIndicator) {
+        this.isIndicator = isIndicator;
     }
 
     @Override
@@ -251,34 +231,34 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
         return mRatingBarListener;
     }
 
-    private Rect hitRectCheck = new Rect();
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        //Bascially do not allow user to update this stuff is indicator only
-        if(isIndicator)
+        //Basically do not allow user to update this stuff is indicator only
+        if (isIndicator)
             return true;
 
-        int x = (int) event.getX();
-        for (int i = 0; i < getChildCount(); i++) {
-            View v2 = getChildAt(i);
-            v2.getHitRect(hitRectCheck);
-            boolean b = x >= hitRectCheck.left && x <= hitRectCheck.right;
-            if (b) {
-                if (i == 0 && minSelected == 0) {
+        float x = (int) event.getX();
 
-                    float hitOnView = event.getX() - hitRectCheck.left;
-                    if (hitOnView / hitRectCheck.width() <= .25f) {
-                        currentlySelected = 0;
-                    } else {
-                        currentlySelected = 1;
-                    }
+        int selectedAmount = 0;
 
-                } else {
-                    currentlySelected = i + 1;
-                }
-                setRating(currentlySelected, true);
+        if (x >= 0 && x <= getWidth()) {
+            int xPerStar = margin * 2 + starSize;
+            if (x < xPerStar * .25f) {
+                selectedAmount = 0;
+            } else {
+                selectedAmount = (int) ((x - xPerStar * .25) / xPerStar + 1);
             }
         }
+        if (x < 0) {
+            selectedAmount = 0;
+
+        } else if (x > getWidth()) {
+            selectedAmount = mMaxCount;
+
+        }
+
+        setRating(selectedAmount, true);
+
 
         return true;
     }
@@ -286,5 +266,48 @@ public class RatingBar extends LinearLayout implements View.OnTouchListener {
     public interface OnRatingBarChangeListener {
         void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser);
         //Possibly add a previously selected and currently selected part, but later.
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        //Currently we don't care about wrap_content, and other stuff
+        int height = margin * 2 + starSize;
+        int width = height * mMaxCount;
+
+        setMeasuredDimension(width, height);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        float movedX = 0;
+        canvas.translate(0, margin);
+
+        for (int i = 0; i < mMaxCount; i++) {
+            canvas.translate(margin, 0);
+            movedX += margin;
+
+
+            if (baseDrawable != null) {
+                baseDrawable.draw(canvas);
+            }
+            if (overlayDrawable != null) {
+                if (i + 1 <= currentlySelected) {
+                    overlayDrawable.setLevel(10000);
+                    overlayDrawable.draw(canvas);
+                } else {
+                    overlayDrawable.setLevel(0);
+                }
+            }
+            canvas.translate(starSize, 0f);
+            movedX += starSize;
+
+            canvas.translate(margin, 0);
+            movedX += margin;
+        }
+
+        canvas.translate(movedX * -1, margin * -1);
+
     }
 }
