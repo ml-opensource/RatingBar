@@ -11,16 +11,15 @@ import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * A rating bar that allows changes to the "stars". Currently does not support partial stars
+ * A rating bar that allows customization to the star element and more
  *
- * @author Piotr Leja (FUZZ)
+ * @author Piotr Leja (FUZZ)(@raigex)
  */
 public class RatingBar extends View {
     @SuppressWarnings("unused")
@@ -85,7 +84,7 @@ public class RatingBar extends View {
             mMaxCount = a.getInt(R.styleable.RatingBar_numStars, 5); // you usually go 1-5 stars when rating
             mMinSelectionAllowed = a.getInt(R.styleable.RatingBar_minAllowedStars, 0);
             mMargin = a.getDimensionPixelSize(R.styleable.RatingBar_starSpacing, getPixelValueForDP(5));
-            mRating = a.getFloat(R.styleable.RatingBar_rating , mMinSelectionAllowed);
+            mRating = a.getFloat(R.styleable.RatingBar_rating, mMinSelectionAllowed);
             isIndicator = a.getBoolean(R.styleable.RatingBar_isIndicator, false);
             mStepSize = a.getFloat(R.styleable.RatingBar_stepSize, 1);
             a.recycle();
@@ -103,8 +102,8 @@ public class RatingBar extends View {
     }
 
 
-    private void setRating(float pos, boolean fromUser) {
-        mRating = pos;
+    private void setRating(float newRating, boolean fromUser) {
+        mRating = newRating - (newRating % mStepSize);
         if (mRating < mMinSelectionAllowed) {
             mRating = mMinSelectionAllowed;
         } else if (mRating > mMaxCount) {
@@ -117,14 +116,26 @@ public class RatingBar extends View {
 
     }
 
+    /**
+     * Sets the current rating, if a rating is set that is not an interval of step size
+     * (e.g. 1.2 if stepSize is .5) then we round down to nearest step size
+     * @param rating the rating to be set must be positive or 0
+     */
     public void setRating(float rating) {
         setRating(rating, false);
     }
 
+    /**
+     * @return Returns the current rating
+     */
     public float getRating() {
         return mRating;
     }
 
+    /**
+     * Sets the stars count
+     * @param count amount of stars to draw
+     */
     public void setMax(int count) {
         mMaxCount = count;
         post(new Runnable() {
@@ -135,24 +146,43 @@ public class RatingBar extends View {
         });
     }
 
+    /**
+     * @return Return star count
+     */
     public int getMax() {
         return this.mMaxCount;
     }
 
+    /**
+     * Sets the minimum allowable stars, so the user cannot swipe to 0 if rating must be at least 1
+     * @param minStarCount the minimum amount of stars that have to be selected
+     */
     public void setMinimumSelectionAllowed(int minStarCount) {
         mMinSelectionAllowed = minStarCount;
         postInvalidate();
     }
 
+    /**
+     * @return the current min of stars allowed
+     */
     public int getMinimumSelectionAllowed() {
         return mMinSelectionAllowed;
     }
 
-    public void setStarMarginsInDP(int marginInDp){
+
+    /**
+     * Sets the stars margins, this is unconnected to starSize, it is a type of padding around each star
+     * @param marginInDp the dp size you wish to use
+     */
+    public void setStarMarginsInDP(int marginInDp) {
         setStarMargins(getPixelValueForDP(marginInDp));
     }
 
-    public void setStarMargins(int margins){
+    /**
+     * Sets the star margins in PIXELS
+     * @param margins margins in Pixels
+     */
+    public void setStarMargins(int margins) {
         this.mMargin = margins;
         post(new Runnable() {
             @Override
@@ -162,11 +192,14 @@ public class RatingBar extends View {
         });
     }
 
-    public int getMargin(){
+    /**
+     * @return returns current margins in pixels
+     */
+    public int getMargin() {
         return this.mMargin;
     }
 
-    private int getPixelValueForDP(int dp){
+    private int getPixelValueForDP(int dp) {
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 dp,
@@ -174,16 +207,24 @@ public class RatingBar extends View {
         );
     }
 
+    /**
+     * Sets the square box for star size
+     * @param size the dp version of size
+     */
     public void setStarSizeInDp(int size) {
-        mStarSize = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                size,
-                getResources().getDisplayMetrics()
-        );
-        if(baseDrawable != null){
+        setStarSize(getPixelValueForDP(size));
+    }
+
+    /**
+     * Sets the square box for star size
+     * @param size pixels for 1 side of square box
+     */
+    public void setStarSize(int size) {
+        mStarSize = size;
+        if (baseDrawable != null) {
             baseDrawable.setBounds(0, 0, mStarSize, mStarSize);
         }
-        if(overlayDrawable != null){
+        if (overlayDrawable != null) {
             overlayDrawable.setBounds(0, 0, mStarSize, mStarSize);
         }
         post(new Runnable() {
@@ -195,7 +236,7 @@ public class RatingBar extends View {
     }
 
     @SuppressLint("RtlHardcoded")
-    private void createFilledClipDrawable(@NonNull  Drawable d){
+    private void createFilledClipDrawable(@NonNull Drawable d) {
         overlayDrawable = new ClipDrawable(
                 d,
                 Gravity.LEFT,
@@ -204,13 +245,17 @@ public class RatingBar extends View {
         overlayDrawable.setBounds(0, 0, mStarSize, mStarSize);
     }
 
-    public void setFilledDrawable(Drawable filledDrawable){
-        if(overlayDrawable == null){
-            if(filledDrawable != null) {
+    /**
+     * Changes the current filled drawable to the one passed in via the
+     * {@code filledDrawable} drawable.
+     */
+    public void setFilledDrawable(Drawable filledDrawable) {
+        if (overlayDrawable == null) {
+            if (filledDrawable != null) {
                 createFilledClipDrawable(filledDrawable);
             }
         } else {
-            if(filledDrawable == null){
+            if (filledDrawable == null) {
                 overlayDrawable = null;
             } else {
                 createFilledClipDrawable(filledDrawable);
@@ -221,7 +266,7 @@ public class RatingBar extends View {
 
     /**
      * Changes the current filled drawable to the one passed in via the
-     * {@code filledDrawable}.
+     * {@code filledDrawable} resource.
      */
     public void setFilledDrawable(@DrawableRes int filledDrawable) {
         Drawable newVersion;
@@ -234,8 +279,11 @@ public class RatingBar extends View {
         setFilledDrawable(newVersion);
     }
 
-
-    public void setEmptyDrawable(Drawable emptyDrawable){
+    /**
+     * Changes the current empty drawable to the one passed in via the
+     * {@code emptyDrawable} drawable.
+     */
+    public void setEmptyDrawable(Drawable emptyDrawable) {
         this.baseDrawable = emptyDrawable;
         baseDrawable.setBounds(0, 0, mStarSize, mStarSize);
         postInvalidate();
@@ -243,7 +291,7 @@ public class RatingBar extends View {
 
     /**
      * Changes the current empty drawable to the one passed in via the
-     * {@code emptyDrawable}.
+     * {@code emptyDrawable} resource.
      */
     public void setEmptyDrawable(@DrawableRes int emptyDrawable) {
         this.emptyDrawable = emptyDrawable;
@@ -257,6 +305,10 @@ public class RatingBar extends View {
 
     }
 
+    /**
+     * Set weather this rating bar is user touch modyfiable
+     * @param isIndicator if true user cannot change with touch, if false user can change with touch
+     */
     public void setIsIndicator(boolean isIndicator) {
         this.isIndicator = isIndicator;
     }
@@ -297,10 +349,10 @@ public class RatingBar extends View {
                 baseDrawable.draw(canvas);
             }
             if (overlayDrawable != null) {
-                if(remaining >= 1){
+                if (remaining >= 1) {
                     overlayDrawable.setLevel(10000);
                     overlayDrawable.draw(canvas);
-                } else if (remaining > 0){
+                } else if (remaining > 0) {
                     overlayDrawable.setLevel((int) (remaining * 10000));
                     overlayDrawable.draw(canvas);
                 } else {
@@ -336,11 +388,11 @@ public class RatingBar extends View {
                     selectedAmount = 0;
                 } else {
 
-                    if(mStepSize <= 0){
+                    if (mStepSize <= 0) {
                         mStepSize = 0.1f;
                     }
 
-                    selectedAmount = (((x - xPerStar) / xPerStar )+ 1);
+                    selectedAmount = (((x - xPerStar) / xPerStar) + 1);
                     float remainder = selectedAmount % mStepSize;
                     selectedAmount = selectedAmount - remainder;
                 }
