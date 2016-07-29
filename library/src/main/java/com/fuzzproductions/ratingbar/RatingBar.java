@@ -21,7 +21,7 @@ import android.view.View;
  *
  * @author Piotr Leja (FUZZ)
  */
-public class RatingBar extends View implements View.OnTouchListener {
+public class RatingBar extends View {
     @SuppressWarnings("unused")
     private static final String TAG = "RatingBar";
     protected static final int DEFAULT_FILLED_DRAWABLE = R.drawable.icn_rating_start_green;
@@ -44,7 +44,7 @@ public class RatingBar extends View implements View.OnTouchListener {
     /**
      * Amount of space between consecutive rating stars - default 5 dp.
      */
-    protected int margin;
+    protected int mMargin;
 
     private OnRatingBarChangeListener mRatingBarListener = null;
 
@@ -83,7 +83,7 @@ public class RatingBar extends View implements View.OnTouchListener {
             mStarSize = a.getDimensionPixelSize(R.styleable.RatingBar_starSize, 0); // TODO: change default value
             mMaxCount = a.getInt(R.styleable.RatingBar_maxStars, 5); // you usually go 1-5 stars when rating
             mMinSelectionAllowed = a.getInt(R.styleable.RatingBar_minStars, 0);
-            margin = a.getDimensionPixelSize(R.styleable.RatingBar_starSpacing, getDefaultSpacing());
+            mMargin = a.getDimensionPixelSize(R.styleable.RatingBar_starSpacing, getDefaultSpacing());
             mRating = a.getInt(R.styleable.RatingBar_starsSelected, mMinSelectionAllowed);
             a.recycle();
         } else {
@@ -100,8 +100,7 @@ public class RatingBar extends View implements View.OnTouchListener {
             overlayDrawable = new ClipDrawable(d, Gravity.LEFT, ClipDrawable.HORIZONTAL);
             overlayDrawable.setBounds(d.getBounds());
         }
-        setOnTouchListener(null);
-
+        super.setOnTouchListener(mTouchListener);
     }
 
     private void setDefaultDrawables() {
@@ -251,8 +250,6 @@ public class RatingBar extends View implements View.OnTouchListener {
 
     @Override
     public void setOnTouchListener(OnTouchListener l) {
-        //We don't allow other touch listeners here
-        super.setOnTouchListener(this);
     }
 
     public void setOnRatingBarChangeListener(OnRatingBarChangeListener listener) {
@@ -263,38 +260,6 @@ public class RatingBar extends View implements View.OnTouchListener {
         return mRatingBarListener;
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        //Basically do not allow user to update this stuff is indicator only
-        if (isIndicator)
-            return true;
-
-        float x = (int) event.getX();
-
-        int selectedAmount = 0;
-
-        if (x >= 0 && x <= getWidth()) {
-            int xPerStar = margin * 2 + mStarSize;
-            if (x < xPerStar * .25f) {
-                selectedAmount = 0;
-            } else {
-                selectedAmount = (int) ((x - xPerStar * .25) / xPerStar + 1);
-            }
-        }
-        if (x < 0) {
-            selectedAmount = 0;
-
-        } else if (x > getWidth()) {
-            selectedAmount = mMaxCount;
-
-        }
-
-        setRating(selectedAmount, true);
-
-
-        return true;
-    }
-
     public interface OnRatingBarChangeListener {
         void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser);
         //Possibly add a previously selected and currently selected part, but later.
@@ -303,7 +268,7 @@ public class RatingBar extends View implements View.OnTouchListener {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         //Currently we don't care about wrap_content, and other stuff
-        int height = margin * 2 + mStarSize;
+        int height = mMargin * 2 + mStarSize;
         int width = height * mMaxCount;
 
         setMeasuredDimension(width, height);
@@ -313,11 +278,11 @@ public class RatingBar extends View implements View.OnTouchListener {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         float movedX = 0;
-        canvas.translate(0, margin);
+        canvas.translate(0, mMargin);
 
         for (int i = 0; i < mMaxCount; i++) {
-            canvas.translate(margin, 0);
-            movedX += margin;
+            canvas.translate(mMargin, 0);
+            movedX += mMargin;
 
 
             if (baseDrawable != null) {
@@ -334,11 +299,45 @@ public class RatingBar extends View implements View.OnTouchListener {
             canvas.translate(mStarSize, 0f);
             movedX += mStarSize;
 
-            canvas.translate(margin, 0);
-            movedX += margin;
+            canvas.translate(mMargin, 0);
+            movedX += mMargin;
         }
 
-        canvas.translate(movedX * -1, margin * -1);
+        canvas.translate(movedX * -1, mMargin * -1);
 
     }
+
+    private final OnTouchListener mTouchListener = new OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            //Basically do not allow user to update this stuff is indicator only
+            if (isIndicator)
+                return true;
+
+            float x = (int) event.getX();
+
+            int selectedAmount = 0;
+
+            if (x >= 0 && x <= getWidth()) {
+                int xPerStar = mMargin * 2 + mStarSize;
+                if (x < xPerStar * .25f) {
+                    selectedAmount = 0;
+                } else {
+                    selectedAmount = (int) ((x - xPerStar * .25) / xPerStar + 1);
+                }
+            }
+            if (x < 0) {
+                selectedAmount = 0;
+
+            } else if (x > getWidth()) {
+                selectedAmount = mMaxCount;
+
+            }
+
+            setRating(selectedAmount, true);
+
+
+            return true;
+        }
+    };
 }
