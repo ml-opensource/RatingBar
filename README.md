@@ -33,6 +33,6 @@ Customizations
 Set the height and width of the stars with `setStarSizeInDp(int dp)`. Omitting this method call will result in the use of
 wrap_content.
 
-Change the number of stars to choose from with `setStarCount(int count)`.
+Change the number of stars to choose from with `setMax(int count)`.
 
-Change the minimum stars allowed to be selected `setMinStarCount(int minCount)`
+Change the minimum stars allowed to be selected `setMinimumSelectionAllowed(int minCount)`
