@@ -11,6 +11,7 @@ import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -44,7 +45,7 @@ public class RatingBar extends View {
     /**
      * Amount of space between consecutive rating stars - default 5 dp.
      */
-    protected int mMargin;
+    private int mMargin;
 
     private OnRatingBarChangeListener mRatingBarListener = null;
 
@@ -80,27 +81,20 @@ public class RatingBar extends View {
             TypedArray a = getContext().obtainStyledAttributes(attributeSet, R.styleable.RatingBar);
             filledDrawable = a.getResourceId(R.styleable.RatingBar_filledDrawable, DEFAULT_FILLED_DRAWABLE);
             emptyDrawable = a.getResourceId(R.styleable.RatingBar_emptyDrawable, DEFAULT_EMPTY_DRAWABLE);
-            mStarSize = a.getDimensionPixelSize(R.styleable.RatingBar_starSize, 0); // TODO: change default value
-            mMaxCount = a.getInt(R.styleable.RatingBar_maxStars, 5); // you usually go 1-5 stars when rating
-            mMinSelectionAllowed = a.getInt(R.styleable.RatingBar_minStars, 0);
-            mMargin = a.getDimensionPixelSize(R.styleable.RatingBar_starSpacing, getDefaultSpacing());
-            mRating = a.getInt(R.styleable.RatingBar_starsSelected, mMinSelectionAllowed);
+            mStarSize = a.getDimensionPixelSize(R.styleable.RatingBar_starSize, getPixelValueForDP(20));
+            mMaxCount = a.getInt(R.styleable.RatingBar_numStars, 5); // you usually go 1-5 stars when rating
+            mMinSelectionAllowed = a.getInt(R.styleable.RatingBar_minAllowedStars, 0);
+            mMargin = a.getDimensionPixelSize(R.styleable.RatingBar_starSpacing, getPixelValueForDP(5));
+            mRating = a.getFloat(R.styleable.RatingBar_rating , mMinSelectionAllowed);
+            isIndicator = a.getBoolean(R.styleable.RatingBar_isIndicator, false);
+            mStepSize = a.getFloat(R.styleable.RatingBar_stepSize, 1);
             a.recycle();
         } else {
             setDefaultDrawables();
         }
-        baseDrawable = getResources().getDrawable(emptyDrawable);
-        if (baseDrawable != null) {
-            baseDrawable.setBounds(0, 0, mStarSize, mStarSize);
-        }
-
-        Drawable d = getResources().getDrawable(filledDrawable);
-        if (d != null) {
-            d.setBounds(0, 0, mStarSize, mStarSize);
-            overlayDrawable = new ClipDrawable(d, Gravity.LEFT, ClipDrawable.HORIZONTAL);
-            overlayDrawable.setBounds(d.getBounds());
-        }
         super.setOnTouchListener(mTouchListener);
+        setEmptyDrawable(emptyDrawable);
+        setFilledDrawable(filledDrawable);
     }
 
     private void setDefaultDrawables() {
@@ -117,7 +111,7 @@ public class RatingBar extends View {
             mRating = mMaxCount;
         }
         if (mRatingBarListener != null) {
-            mRatingBarListener.onRatingChanged(this, pos, fromUser);
+            mRatingBarListener.onRatingChanged(this, mRating, fromUser);
         }
         postInvalidate();
 
@@ -154,10 +148,28 @@ public class RatingBar extends View {
         return mMinSelectionAllowed;
     }
 
-    private int getDefaultSpacing() {
+    public void setStarMarginsInDP(int marginInDp){
+        setStarMargins(getPixelValueForDP(marginInDp));
+    }
+
+    public void setStarMargins(int margins){
+        this.mMargin = margins;
+        post(new Runnable() {
+            @Override
+            public void run() {
+                requestLayout();
+            }
+        });
+    }
+
+    public int getMargin(){
+        return this.mMargin;
+    }
+
+    private int getPixelValueForDP(int dp){
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
-                5,
+                dp,
                 getResources().getDisplayMetrics()
         );
     }
@@ -225,6 +237,7 @@ public class RatingBar extends View {
 
     public void setEmptyDrawable(Drawable emptyDrawable){
         this.baseDrawable = emptyDrawable;
+        baseDrawable.setBounds(0, 0, mStarSize, mStarSize);
         postInvalidate();
     }
 
@@ -260,10 +273,6 @@ public class RatingBar extends View {
         return mRatingBarListener;
     }
 
-    public interface OnRatingBarChangeListener {
-        void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser);
-        //Possibly add a previously selected and currently selected part, but later.
-    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -279,22 +288,25 @@ public class RatingBar extends View {
         super.onDraw(canvas);
         float movedX = 0;
         canvas.translate(0, mMargin);
-
+        float remaining = mRating;
         for (int i = 0; i < mMaxCount; i++) {
             canvas.translate(mMargin, 0);
             movedX += mMargin;
-
 
             if (baseDrawable != null) {
                 baseDrawable.draw(canvas);
             }
             if (overlayDrawable != null) {
-                if (i + 1 <= mRating) {
+                if(remaining >= 1){
                     overlayDrawable.setLevel(10000);
+                    overlayDrawable.draw(canvas);
+                } else if (remaining > 0){
+                    overlayDrawable.setLevel((int) (remaining * 10000));
                     overlayDrawable.draw(canvas);
                 } else {
                     overlayDrawable.setLevel(0);
                 }
+                remaining -= 1;
             }
             canvas.translate(mStarSize, 0f);
             movedX += mStarSize;
@@ -316,14 +328,21 @@ public class RatingBar extends View {
 
             float x = (int) event.getX();
 
-            int selectedAmount = 0;
+            float selectedAmount = 0;
 
             if (x >= 0 && x <= getWidth()) {
                 int xPerStar = mMargin * 2 + mStarSize;
                 if (x < xPerStar * .25f) {
                     selectedAmount = 0;
                 } else {
-                    selectedAmount = (int) ((x - xPerStar * .25) / xPerStar + 1);
+
+                    if(mStepSize <= 0){
+                        mStepSize = 0.1f;
+                    }
+
+                    selectedAmount = (((x - xPerStar) / xPerStar )+ 1);
+                    float remainder = selectedAmount % mStepSize;
+                    selectedAmount = selectedAmount - remainder;
                 }
             }
             if (x < 0) {
@@ -340,4 +359,12 @@ public class RatingBar extends View {
             return true;
         }
     };
+
+    //Interfaces
+
+    public interface OnRatingBarChangeListener {
+        void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser);
+        //Possibly add a previously selected and currently selected part, but later.
+    }
+
 }

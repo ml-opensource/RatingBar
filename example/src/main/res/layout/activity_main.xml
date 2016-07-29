@@ -19,11 +19,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        app:minStars="1"
-        app:maxStars="7"
+        app:minAllowedStars="1"
+        app:numStars="7"
         app:starSize="20dp"
-        app:starsSelected="3"
-        app:starSpacing="10dp"
+        app:rating="2.5"
+        app:starMargin="5dp"
+        app:stepSize=".5"
         android:layout_margin="10dp"
         />
 

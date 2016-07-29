@@ -3,10 +3,13 @@
     <declare-styleable name="RatingBar">
         <attr name="filledDrawable" format="integer" />
         <attr name="emptyDrawable" format="integer" />
-        <attr name="starsSelected" format="integer"/>
-        <attr name="maxStars" format="integer"/>
-        <attr name="minStars" format="integer"/>
+        <attr name="rating" format="float"/>
+        <attr name="numStars" format="integer"/>
+        <attr name="minAllowedStars" format="integer"/>
+        <attr name="starSize" format="dimension"/>
         <attr name="starSpacing" format="dimension"/>
-        <attr name="starSize" format="dimension" />
+        <attr name="starMargin" format="dimension" />
+        <attr name="isIndicator" format="boolean"/>
+        <attr name="stepSize" format="float"/>
     </declare-styleable>
 </resources>

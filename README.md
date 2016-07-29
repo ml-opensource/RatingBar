@@ -19,11 +19,11 @@ Usage
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerInParent="true"
-    app:minStars="1"
-    app:maxStars="7"
+    app:minAllowedStars="1"
+    app:numStars="7"
     app:starSize="20dp"
     app:starsSelected="3"
-    app:starSpacing="10dp"
+    app:starMargin="10dp"
     />
 ```
 
@@ -31,8 +31,8 @@ Customizations
 --------------
 
 Set the height and width of the stars with `setStarSizeInDp(int dp)`. Omitting this method call will result in the use of
-wrap_content.
+default 30dp value.
 
-Change the number of stars to choose from with `setMax(int count)`.
+Change the number of stars to choose from with `setMax(int count)` corresponds to .
 
 Change the minimum stars allowed to be selected `setMinimumSelectionAllowed(int minCount)`
