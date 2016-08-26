@@ -103,7 +103,13 @@ public class RatingBar extends View {
 
 
     private void setRating(float newRating, boolean fromUser) {
-        mRating = newRating - (newRating % mStepSize);
+        float mod = newRating % mStepSize;
+
+        // patch up precision issue where this calculation results in a remainder that incorrectly subtracts off the rating.
+        if (mod < mStepSize) {
+            mod = 0;
+        }
+        mRating = newRating - mod;
         if (mRating < mMinSelectionAllowed) {
             mRating = mMinSelectionAllowed;
         } else if (mRating > mMaxCount) {
@@ -119,6 +125,7 @@ public class RatingBar extends View {
     /**
      * Sets the current rating, if a rating is set that is not an interval of step size
      * (e.g. 1.2 if stepSize is .5) then we round down to nearest step size
+     *
      * @param rating the rating to be set must be positive or 0
      */
     public void setRating(float rating) {
@@ -134,6 +141,7 @@ public class RatingBar extends View {
 
     /**
      * Sets the stars count
+     *
      * @param count amount of stars to draw
      */
     public void setMax(int count) {
@@ -155,6 +163,7 @@ public class RatingBar extends View {
 
     /**
      * Sets the minimum allowable stars, so the user cannot swipe to 0 if rating must be at least 1
+     *
      * @param minStarCount the minimum amount of stars that have to be selected
      */
     public void setMinimumSelectionAllowed(int minStarCount) {
@@ -172,6 +181,7 @@ public class RatingBar extends View {
 
     /**
      * Sets the stars margins, this is unconnected to starSize, it is a type of padding around each star
+     *
      * @param marginInDp the dp size you wish to use
      */
     public void setStarMarginsInDP(int marginInDp) {
@@ -180,6 +190,7 @@ public class RatingBar extends View {
 
     /**
      * Sets the star margins in PIXELS
+     *
      * @param margins margins in Pixels
      */
     public void setStarMargins(int margins) {
@@ -209,6 +220,7 @@ public class RatingBar extends View {
 
     /**
      * Sets the square box for star size
+     *
      * @param size the dp version of size
      */
     public void setStarSizeInDp(int size) {
@@ -217,6 +229,7 @@ public class RatingBar extends View {
 
     /**
      * Sets the square box for star size
+     *
      * @param size pixels for 1 side of square box
      */
     public void setStarSize(int size) {
@@ -307,6 +320,7 @@ public class RatingBar extends View {
 
     /**
      * Set weather this rating bar is user touch modyfiable
+     *
      * @param isIndicator if true user cannot change with touch, if false user can change with touch
      */
     public void setIsIndicator(boolean isIndicator) {
@@ -375,8 +389,9 @@ public class RatingBar extends View {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             //Basically do not allow user to update this stuff is indicator only
-            if (isIndicator)
+            if (isIndicator) {
                 return true;
+            }
 
             float x = (int) event.getX();
 
