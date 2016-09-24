@@ -1,4 +1,4 @@
-RatingBar
+RatingBar [![Slack Status](https://fuzz-opensource.herokuapp.com/badge.svg)](https://fuzz-opensource.herokuapp.com/)
 =========================
 
 <img src="art/demo.png" width="275" align="right"/>
