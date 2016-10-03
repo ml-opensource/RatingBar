@@ -33,21 +33,32 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/rating_bar"
         android:layout_centerHorizontal="true"
+        style="?android:attr/buttonBarStyle"
         >
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/random_starSize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Random Star Size"
+            android:text="@string/random_star_size"
+            android:contentDescription="@string/random_star_size"
             />
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/random_starCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Random Star Count"
+            android:text="@string/random_star_count"
+            android:contentDescription="@string/random_star_count"
             />
+
     </LinearLayout>
 
+    <Button
+        android:id="@+id/indicatorSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/indicatorswitch"/>
 
 </RelativeLayout>
