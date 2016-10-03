@@ -26,6 +26,7 @@ Usage
     app:starSize="20dp"
     app:rating="3"
     app:starMargin="10dp"
+    app:isIndicator="false"
     />
 ```
 
