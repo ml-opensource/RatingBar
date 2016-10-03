@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingBottom="@dimen/activity_vertical_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -12,53 +14,44 @@
         android:id="@+id/justsometext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true" />
 
     <com.fuzzproductions.ratingbar.RatingBar
         android:id="@+id/rating_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:layout_margin="10dp"
         app:minAllowedStars="1"
         app:numStars="7"
-        app:starSize="20dp"
         app:rating="2.5"
         app:starMargin="5dp"
-        app:stepSize=".5"
-        android:layout_margin="10dp"
-        />
+        app:starSize="20dp"
+        app:stepSize=".5" />
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/rating_bar"
-        android:layout_centerHorizontal="true"
-        style="?android:attr/buttonBarStyle"
-        >
+        android:layout_centerHorizontal="true">
 
         <Button
-            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/random_starSize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/random_star_size"
-            android:contentDescription="@string/random_star_size"
-            />
-        <Button
             style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/random_starCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/random_star_count"
+            android:contentDescription="@string/random_star_size"
+            android:text="@string/random_star_size" />
+
+        <Button
+            android:id="@+id/random_starCount"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/random_star_count"
-            />
+            android:text="@string/random_star_count" />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/indicatorSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/indicatorswitch"/>
 
 </RelativeLayout>
