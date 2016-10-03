@@ -38,9 +38,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-            // Should move this elsewhere but below checks that making bar indicator allows
-            // touch events to pass through to parent
-
+            // If you want to see for yourself whether click events are passed through,
+            // try out below lines of code.
 //            bar.setIsIndicator(true);
 //            ((ViewGroup) bar.getParent()).setOnClickListener(new View.OnClickListener() {
 //                @Override
