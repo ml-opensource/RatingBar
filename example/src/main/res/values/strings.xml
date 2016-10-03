@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">RatingBarExample</string>
+    <string name="random_star_size">Random Star Size</string>
+    <string name="random_star_count">Random Star Count</string>
 </resources>

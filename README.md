@@ -26,6 +26,9 @@ Usage
     app:starSize="20dp"
     app:rating="3"
     app:starMargin="10dp"
+    app:isIndicator="false"
+    app:emptyDrawable="@drawable/icn_rating_star_green"
+    app:filledDrawable="@drawable/icn_rating_star_grey"
     />
 ```
 

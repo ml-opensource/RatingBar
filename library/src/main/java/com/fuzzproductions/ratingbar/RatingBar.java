@@ -91,9 +91,9 @@ public class RatingBar extends View {
         } else {
             setDefaultDrawables();
         }
-        super.setOnTouchListener(mTouchListener);
         setEmptyDrawable(emptyDrawable);
         setFilledDrawable(filledDrawable);
+        setIsIndicator(isIndicator);
     }
 
     private void setDefaultDrawables() {
@@ -325,6 +325,11 @@ public class RatingBar extends View {
      */
     public void setIsIndicator(boolean isIndicator) {
         this.isIndicator = isIndicator;
+        if(this.isIndicator){
+            super.setOnTouchListener(null);
+        } else {
+            super.setOnTouchListener(mTouchListener);
+        }
     }
 
     @Override
