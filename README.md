@@ -10,6 +10,15 @@ A lightweight RatingsBar widget that makes it easier to customize the look of th
 
 Usage
 -----
+**Gradle:**
+
+```xml
+maven { url "https://www.jitpack.io" }
+```
+Add to dependencies
+```
+compile 'com.github.fuzz-productions:RatingBar:1.0.3'
+```
 
 - Include the selected state drawable `icn_rating_start_green` in your project.
 - Include the unselected state drawable `icn_rating_start_grey` in your project.
