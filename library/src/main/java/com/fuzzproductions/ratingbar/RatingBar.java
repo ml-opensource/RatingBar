@@ -412,9 +412,7 @@ public class RatingBar extends View {
                         mStepSize = 0.1f;
                     }
 
-                    selectedAmount = (((x - xPerStar) / xPerStar) + 1);
-                    float remainder = selectedAmount % mStepSize;
-                    selectedAmount = selectedAmount - remainder;
+                    selectedAmount = getSelectedRating(x, xPerStar, RatingBar.this.mStepSize);
                 }
             }
             if (x < 0) {
@@ -431,6 +429,26 @@ public class RatingBar extends View {
             return true;
         }
     };
+
+    /**
+     * Given the x-coordinate of a point somewhere within this {@link RatingBar}.
+     * <p>
+     *     Returned value must be an integer multiple of {@code stepSize}.
+     * </p>
+     *
+     * @param xOfRating x-coordinate (in pixels) of a proposed rating value
+     * @param xPerStar  how many pixels (in the x direction) correspond to one star
+     * @param stepSize  the smallest individual unit of a rating
+     * @return an accepted rating value
+     */
+    protected float getSelectedRating(float xOfRating, int xPerStar, float stepSize) {
+        float selectedAmount = (((xOfRating - xPerStar) / xPerStar) + 1);
+        float remainder = selectedAmount % stepSize;
+
+        selectedAmount = selectedAmount - remainder;
+
+        return selectedAmount;
+    }
 
     //Interfaces
 
