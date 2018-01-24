@@ -134,6 +134,10 @@ public class RatingBar extends View {
         setRating(rating, false);
     }
 
+    public void setShouldSelectTheTappedRating(boolean selectTheTappedRating) {
+        this.selectTheTappedRating = selectTheTappedRating;
+    }
+
     /**
      * @return Returns the current rating
      */
