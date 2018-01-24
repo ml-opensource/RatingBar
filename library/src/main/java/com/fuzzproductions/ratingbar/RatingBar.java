@@ -32,6 +32,7 @@ public class RatingBar extends View {
     private int mStarSize = 0;
     private boolean isIndicator = false;
     private float mStepSize = 1;
+    private boolean selectTheTappedRating = false;
 
     @DrawableRes
     private int filledDrawable;
@@ -87,6 +88,7 @@ public class RatingBar extends View {
             mRating = a.getFloat(R.styleable.RatingBar_rating, mMinSelectionAllowed);
             isIndicator = a.getBoolean(R.styleable.RatingBar_isIndicator, false);
             mStepSize = a.getFloat(R.styleable.RatingBar_stepSize, 1);
+            selectTheTappedRating = a.getBoolean(R.styleable.RatingBar_selectTheTappedRating, false);
             a.recycle();
         } else {
             setDefaultDrawables();
@@ -446,6 +448,11 @@ public class RatingBar extends View {
         float remainder = selectedAmount % stepSize;
 
         selectedAmount = selectedAmount - remainder;
+
+        if (selectTheTappedRating) {
+            float directionalStep = Math.signum(remainder) * stepSize;
+            selectedAmount += directionalStep;
+        }
 
         return selectedAmount;
     }
