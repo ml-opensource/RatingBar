@@ -32,6 +32,7 @@ public class RatingBar extends View {
     private int mStarSize = 0;
     private boolean isIndicator = false;
     private float mStepSize = 1;
+    private boolean selectTheTappedRating = false;
 
     @DrawableRes
     private int filledDrawable;
@@ -87,6 +88,7 @@ public class RatingBar extends View {
             mRating = a.getFloat(R.styleable.RatingBar_rating, mMinSelectionAllowed);
             isIndicator = a.getBoolean(R.styleable.RatingBar_isIndicator, false);
             mStepSize = a.getFloat(R.styleable.RatingBar_stepSize, 1);
+            selectTheTappedRating = a.getBoolean(R.styleable.RatingBar_selectTheTappedRating, false);
             a.recycle();
         } else {
             setDefaultDrawables();
@@ -130,6 +132,10 @@ public class RatingBar extends View {
      */
     public void setRating(float rating) {
         setRating(rating, false);
+    }
+
+    public void setShouldSelectTheTappedRating(boolean selectTheTappedRating) {
+        this.selectTheTappedRating = selectTheTappedRating;
     }
 
     /**
@@ -412,9 +418,7 @@ public class RatingBar extends View {
                         mStepSize = 0.1f;
                     }
 
-                    selectedAmount = (((x - xPerStar) / xPerStar) + 1);
-                    float remainder = selectedAmount % mStepSize;
-                    selectedAmount = selectedAmount - remainder;
+                    selectedAmount = getSelectedRating(x, xPerStar, RatingBar.this.mStepSize);
                 }
             }
             if (x < 0) {
@@ -431,6 +435,31 @@ public class RatingBar extends View {
             return true;
         }
     };
+
+    /**
+     * Given the x-coordinate of a point somewhere within this {@link RatingBar}.
+     * <p>
+     *     Returned value must be an integer multiple of {@code stepSize}.
+     * </p>
+     *
+     * @param xOfRating x-coordinate (in pixels) of a proposed rating value
+     * @param xPerStar  how many pixels (in the x direction) correspond to one star
+     * @param stepSize  the smallest individual unit of a rating
+     * @return an accepted rating value
+     */
+    protected float getSelectedRating(float xOfRating, int xPerStar, float stepSize) {
+        float selectedAmount = (((xOfRating - xPerStar) / xPerStar) + 1);
+        float remainder = selectedAmount % stepSize;
+
+        selectedAmount = selectedAmount - remainder;
+
+        if (selectTheTappedRating) {
+            float directionalStep = Math.signum(remainder) * stepSize;
+            selectedAmount += directionalStep;
+        }
+
+        return selectedAmount;
+    }
 
     //Interfaces
 

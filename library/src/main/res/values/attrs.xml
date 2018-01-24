@@ -11,5 +11,6 @@
         <attr name="starMargin" format="dimension" />
         <attr name="isIndicator" format="boolean"/>
         <attr name="stepSize" format="float"/>
+        <attr name="selectTheTappedRating" format="boolean"/>
     </declare-styleable>
 </resources>
