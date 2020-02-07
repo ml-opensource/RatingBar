@@ -6,7 +6,7 @@ RatingBar [![Slack Status](https://fuzz-opensource.herokuapp.com/badge.svg)](htt
 A lightweight RatingsBar widget that makes it easier to customize the look of the children ratings views than the default RatingsBar.
 
 **NOTE: This currently only allows use of stock RatingBar functions but not underlying AbsSeekBar functions**
-**NOTE2: Min SDK allowed is SDK 9 - used support library only allows this **
+**NOTE2: Min SDK allowed is SDK 9 - used support library only allows this**
 
 Usage
 -----
@@ -17,7 +17,7 @@ maven { url "https://www.jitpack.io" }
 ```
 Add to dependencies
 ```
-compile 'com.github.fuzz-productions:RatingBar:1.0.3'
+compile 'com.github.fuzz-productions:RatingBar:1.0.5'
 ```
 
 - Include the selected state drawable `icn_rating_start_green` in your project.
