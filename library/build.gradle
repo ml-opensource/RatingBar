@@ -5,7 +5,6 @@ group = 'com.github.fuzz-productions'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "23.0.3"
 
     defaultConfig {
         minSdkVersion 9
