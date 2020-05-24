@@ -18,7 +18,7 @@ maven { url "https://www.jitpack.io" }
 ```
 Add to dependencies
 ```
-compile 'com.github.fuzz-productions:RatingBar:1.0.5'
+compile 'com.github.fuzz-productions:RatingBar:1.0.6'
 ```
 
 - Include the selected state drawable `icn_rating_start_green` in your project.
