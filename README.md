@@ -3,10 +3,11 @@ RatingBar [![Slack Status](https://fuzz-opensource.herokuapp.com/badge.svg)](htt
 
 <img src="art/demo.png" width="275" align="right"/>
 
-A lightweight RatingsBar widget that makes it easier to customize the look of the children ratings views than the default RatingsBar.
+A lightweight RatingBar widget that makes it easier to customize the look of the children ratings views, compared to the default RatingBar.
 
-**NOTE: This currently only allows use of stock RatingBar functions but not underlying AbsSeekBar functions**
-**NOTE2: Min SDK allowed is SDK 9 - used support library only allows this**
+**NOTE: This currently only allows use of stock RatingBar functions but not underlying AbsSeekBar functions.**
+
+**NOTE2: Min SDK allowed is SDK 14. This restriction is defined by the Androidx AppCompat library.**
 
 Usage
 -----
