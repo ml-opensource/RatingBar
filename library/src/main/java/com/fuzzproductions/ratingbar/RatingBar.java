@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -288,13 +289,7 @@ public class RatingBar extends View {
      * {@code filledDrawable} resource.
      */
     public void setFilledDrawable(@DrawableRes int filledDrawable) {
-        Drawable newVersion;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            newVersion = getResources().getDrawable(filledDrawable, null);
-        } else {
-            newVersion = getResources().getDrawable(filledDrawable);
-        }
+        Drawable newVersion = ContextCompat.getDrawable(getContext(), filledDrawable);
         setFilledDrawable(newVersion);
     }
 
@@ -314,14 +309,8 @@ public class RatingBar extends View {
      */
     public void setEmptyDrawable(@DrawableRes int emptyDrawable) {
         this.emptyDrawable = emptyDrawable;
-        Drawable d;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            d = getResources().getDrawable(emptyDrawable, null);
-        } else {
-            d = getResources().getDrawable(emptyDrawable);
-        }
+        Drawable d = ContextCompat.getDrawable(getContext(), emptyDrawable);
         setEmptyDrawable(d);
-
     }
 
     /**
