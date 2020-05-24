@@ -4,10 +4,10 @@ apply plugin: 'maven'
 group = 'com.github.fuzz-productions'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 29
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
     }
 
     buildTypes {
@@ -25,7 +25,7 @@ repositories {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
 }
 
 apply from: '../android-artifacts.gradle'
